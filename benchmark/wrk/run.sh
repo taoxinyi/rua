@@ -1,0 +1,1 @@
+wrk -c "$CONN" -t "$THREADS" -d "$DURATION" "$URL" | tail -n 2 | head -n 1 | awk '{print $2}'
