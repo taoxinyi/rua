@@ -202,8 +202,7 @@ func (r *RawResponse) Parse() {
 
 // updateContentLengthFromHeaders is used to parse the headers given the header bytes, and update the ContentLength of the Response
 func (r *RawResponse) updateContentLengthFromHeaders(b []byte) {
-	headerNum := 0
-	for i := bytes.IndexByte(b, bCr); i != -1; i, headerNum = bytes.IndexByte(b, bCr), headerNum+1 {
+	for i := bytes.IndexByte(b, bCr); i != -1; i= bytes.IndexByte(b, bCr){
 		line := b[:i]
 		sep := bytes.IndexByte(b, ':')
 		name := line[:sep]

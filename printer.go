@@ -28,7 +28,7 @@ func (p *Printer) print(stats *rua.Stats, duration time.Duration) {
 	}}
 	printTable(headers, data)
 
-	headers = []string{"", "Avg", "Min", "Max", "tdev", "+/- Stdev"}
+	headers = []string{"", "Avg", "Min", "Max", "Stdev", "+/- Stdev"}
 	data = [][]string{{
 		"Latency",
 		fmt.Sprintf("%.3fms", float64(stats.LatencyMean())/1000.0),

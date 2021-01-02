@@ -53,11 +53,11 @@ func (u *netHttpUser) DoStaticRequest(response *rua.Response) (err error) {
 	}
 	response.StatusCode = resp.StatusCode
 	// not accurate, only calculated body
-	response.Size = int(resp.ContentLength)
 	// discard the body
-	_, err = io.Copy(ioutil.Discard, resp.Body)
+	n, err := io.Copy(ioutil.Discard, resp.Body)
 	if err != nil {
 		return err
 	}
+	response.Size = int(n)
 	return resp.Body.Close()
 }
