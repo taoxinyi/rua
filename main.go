@@ -86,7 +86,7 @@ func init() {
 	flags.VarP(&headers, "header", "H", "HTTP header to add to the request")
 
 	flags.DurationVarP(&config.Timeout, "timeout", "T", 1*time.Second, "Timeout in seconds")
-	flags.IntVarP(&config.MaxResponseSize, "max-response-size", "M", 4096, "Max response size in order to allocate buffer")
+	flags.IntVarP(&config.RecvBufSize, "recvbuf", "B", 4096, "The buffer size in bytes for read. Should be large enough for status line and headers if raw is used")
 	flags.StringVarP(&config.RequestConfig.Method, "method", "m", "GET", "The HTTP method to be used")
 	flags.VarP(&body, "body", "b", "The file path containing the HTTP body to add to the request")
 	flags.StringVarP(&clientStr, "client", "C", "raw", fmt.Sprintf("Use the underlying HTTP client using one of %s", reflect.ValueOf(clients).MapKeys()))
@@ -131,7 +131,7 @@ func main() {
 	selectedClient, err := getClient(clientStr)
 	// no such client
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr,err)
 		printUsages()
 		os.Exit(ERROR)
 	}
@@ -147,7 +147,7 @@ func main() {
 	// create a new lg
 	lg, err := rua.NewLoadGenerator(&config, selectedClient)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr,err)
 		os.Exit(-1)
 	}
 	fmt.Printf("Running %s test @ %s\n", config.Duration.String(), urlStr)

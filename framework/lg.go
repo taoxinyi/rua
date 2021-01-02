@@ -61,8 +61,8 @@ type LgConfig struct {
 	Connections int
 	// The timeout value. Once a connection timeout occurs, that goroutine will be terminated
 	Timeout time.Duration
-	// the max response size (including status line and headers)
-	MaxResponseSize int
+	// the receive buffer size, should be large enough for status line and headers if `raw` is used
+	RecvBufSize int
 	// the verbose level for debugging
 	Verbose bool
 }
@@ -117,8 +117,8 @@ func setDefaultConfig(config *LgConfig) {
 	if config.Connections <= 0 {
 		config.Connections = defaultConnection
 	}
-	if config.MaxResponseSize <= 0 {
-		config.MaxResponseSize = defaultMaxResponseSize
+	if config.RecvBufSize <= 0 {
+		config.RecvBufSize = defaultMaxResponseSize
 	}
 }
 

@@ -1,6 +1,6 @@
 # Rua
 
-Rua, written in Go, is the one of the **fastest** http load generator (see [Benchmark](##benchmark)). Entirely inspired by [wrk](https://github.com/wg/wrk), rua can generate load almost as fast as [wrk](https://github.com/wg/wrk).
+Rua, written in Go, is the one of the **fastest** http(s) load generators (see [Benchmark](##benchmark)). Entirely inspired by [wrk](https://github.com/wg/wrk), rua can generate load as fast as [wrk](https://github.com/wg/wrk).
 
 Rua is also intended to be one of the best load generator frameworks. You can design your own load configuration and start the load generation programmatically with only a few lines of code.
 
@@ -44,7 +44,7 @@ Running 5s test @ http://example.com
             Connection  Timeout     Status       
 Errors      0           0           0           
 ------------------------------------------------------------------------
-            Avg         Min         Max         tdev        +/- Stdev    
+            Avg         Min         Max         Stdev        +/- Stdev    
 Latency     12.010ms    10.915ms    31.974ms    1.210ms     95.347%     
 ------------------------------------------------------------------------
             50%         75%         90%         99%         99.9%        
@@ -62,16 +62,16 @@ Responses   4169        831.29      6.3 MiB     1.3 MiB/s
 ```
 Usage: rua <options> url
 Options:
-  -d, --duration duration       Duration of test (default 10s)
-  -c, --connections int         Number of connections (default 10)
-  -t, --threads int             Number of OS threads to be used (default 8)
-  -H, --header string           HTTP header to add to the request (default "map[]")
-  -T, --timeout duration        Timeout in seconds (default 1s)
-  -M, --max-response-size int   Max response size in order to allocate buffer (default 4096)
-  -m, --method string           The HTTP method to be used (default "GET")
-  -b, --body string             HTTP body to add to the request
-  -C, --client string           Use the underlying HTTP client using one of [raw fasthttp net] (default "raw")
-  -V, --verbose                 Whether print verbose information
+  -d, --duration duration   Duration of test (default 10s)
+  -c, --connections int     Number of connections (default 10)
+  -t, --threads int         Number of OS threads to be used (default 8)
+  -H, --header string       HTTP header to add to the request (default "map[]")
+  -T, --timeout duration    Timeout in seconds (default 1s)
+  -B, --recvbuf int         The buffer size in bytes for read. Should be large enough for status line and headers if raw is used (default 4096)
+  -m, --method string       The HTTP method to be used (default "GET")
+  -b, --body string         The file path containing the HTTP body to add to the request
+  -C, --client string       Use the underlying HTTP client using one of [raw fasthttp net] (default "raw")
+  -v, --verbose             Whether print verbose information
 ```
 
 ## Framework Usage
@@ -109,22 +109,24 @@ func main() {
 
 See [Client](framework/client)
 
-## How to build an optimized Http Client for Load Generation
+## Optimizations
+Rua with customized raw HTTP client directly operates on TCP connections, which is optimized to send unchanged requests.
+
 1. Each goroutine has a dedicated a TCP connection, there's no need to do any synchronization on them at all.
 
 2. In most scenarios, it's not the load generator's job to test the correctness of the response. There is no need to parse the headers and copy the body. We only need the status code, content length so that we know whether the response is complete or not.
 
 3. If the request will not change, then it's immutable. There is no need to build them or convert them to bytes every time. Directly send the request bytes.
 
-4. Zero memory allocation during the load generation, avoid copy as much as possible
+4. Zero memory allocation during the load generation, avoid copy as much as possible.
 
 ## Limitations
 
 Rua's optimized raw client is implemented in the following ways:
 
-Read until reaches the first `\r\n\r\n`, then find `Content-Length` in the header. Then read until the body size equals `Content-Length`
+Read until reaches the first `\r\n\r\n`, then find `Content-Length` in the header. Then read until the body size equals `Content-Length`. Therefore HTTP pipelining is not supported. (I think it's rarely used in practice.)
 
-However, if you have extremely long headers, the recv buffer is full, and `\r\n\r\n` hasn't reached yet, an error will be thrown. So you should increase the `-M, --max-response-size` size instead So the size can at least large enough for the first `\r\n\r\n`
+If you have extremely long headers, the recv buffer is full, and `\r\n\r\n` hasn't reached yet, an error will be thrown. So you should increase the `-B, --recvbuf` receiver buffer size instead, so the size can at least large enough for the first `\r\n\r\n`
 
 `Content-Length` must be present in the response, otherwise an error will be thrown since the parser doesn't know the body size. Therefore, `Connection: close` is not supported, only `keep-alive` is supported. Also, `Chunk` is not supported since it only knows the body size. Use `--client fasthttp` instead if you need `Connection: close` or `Chunk`.
 
@@ -132,9 +134,11 @@ In summary, use `--client fasthttp` for reliable, use the default `raw` if you n
 
 ## Future Improvements
 
-Rua is still in early stage and there are a lot of features to come. I wonder if it's the already reach the limit of Go in terms of speed and performance. 
+Rua is still in early stage and there are a lot of features to come. These Go APIs are subject to change.
 
-If you have any ideas to improve rua, welcome to submit a PR
+I wonder if it's the already reach the limit of Go in terms of speed and performance. 
+
+If you have any ideas to improve rua, welcome to submit a PR!
 
 ## Acknowledgements
 

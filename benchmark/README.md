@@ -86,9 +86,10 @@ One for generate load to the server using `rua`, `rua` with `fasthttp` client, `
 For the load generators, uses 100 connections, 4 threads, 30s
 
 ## Result
-Rua has only ~2% lower RPS compared to `wrk` when the response is relatively small and lower CPU utilization in most scenarios.
-The CPU on the load generator is not saturated while the CPU on the server is.
-Overall, it's already quite impressive to send 230,000+ requests per second on a 4 core machine.
+Rua has the same performance compared to `wrk` and `wrk2`, most of the time even lower CPU utilization.
+
+However, it's quite intriguing to see `wrk` and `wrk2` has lower CPU utilization when the response is large
+
 ![RPS](result/out_rps.png)
 ![CPU](result/out_cpu.png)
 ![Memory](result/out_memory.png)

@@ -37,7 +37,7 @@ func (c *rawHttpClient) Name() string {
 
 func (c *rawHttpClient) Init(config *rua.LgConfig, request *rua.Request) (err error) {
 	c.urlString = config.RequestConfig.URL
-	c.maxResponseSize = config.MaxResponseSize
+	c.maxResponseSize = config.RecvBufSize
 	c.requestBytes = request.RawBytes
 	c.timeout = config.Timeout
 	return nil

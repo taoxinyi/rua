@@ -28,7 +28,7 @@ func (c *fastHttpClient) Init(config *rua.LgConfig, request *rua.Request) (err e
 	client := &fasthttp.Client{
 		NoDefaultUserAgentHeader:      true,
 		MaxConnsPerHost:               config.Connections,
-		ReadBufferSize:                config.MaxResponseSize,
+		ReadBufferSize:                config.RecvBufSize,
 		ReadTimeout:                   config.Timeout,
 		DisableHeaderNamesNormalizing: true,
 	}
