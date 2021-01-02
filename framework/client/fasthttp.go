@@ -43,7 +43,9 @@ func (c *fastHttpClient) Init(config *rua.LgConfig, request *rua.Request) (err e
 }
 
 func (c *fastHttpClient) CreateUser() (rua.User, error) {
-	return &fastHttpUser{client: c.client, request: c.request}, nil
+	request := &fasthttp.Request{}
+	c.request.CopyTo(request)
+	return &fastHttpUser{client: c.client, request: request}, nil
 }
 
 // a fastHttpUser just grab a connection from the http.Client and send a requests, and wait for a response
