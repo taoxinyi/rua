@@ -36,7 +36,7 @@ go build
 
 The following command runs a benchmark for 5 seconds, using 2 threads, and using 10 connections(goroutines).
 
-```shell
+```
 $ rua -t 2 -c 10 -d 5s http://example.com
 Running 5s test @ http://example.com
  2 threads and 10 connections
